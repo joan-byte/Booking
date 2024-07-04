@@ -3,37 +3,83 @@
 <head>
     <title>Sports Booking</title>
     {% load static %}
-   
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar-custom {
+            background-color: #007bff;
+        }
+        .navbar-custom a {
+            color: white !important;
+        }
+        .navbar-custom .logout-form {
+            display: flex;
+            align-items: center;
+            margin-left: 20px; /* Ajusta esta distancia según tus necesidades */
+        }
+        .navbar-custom .logout-form button {
+            padding: 0;
+            color: white;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .reservation-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        .reservation-table th, .reservation-table td {
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .time-slot {
+            height: 20px;
+        }
+        .reserved {
+            background-color: #ffc107;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Sports Booking</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'index' %}">Inicio</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'reservation_list' %}">Mis Reservas</a></li>
-                    <li><a href="{% url 'reservar' %}">Reservar</a></li>
-                    <li>
-                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer; color: #007bff; text-decoration: underline; font-size: 1em;">
-                                Logout
-                            </button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                {% endif %}
-                {% if user.is_authenticated and user.is_superuser %}
-                    <li><a href="{% url 'registro' %}">Registro</a></li>
-                {% endif %}
-            </ul>
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <a class="navbar-brand" href="{% url 'index' %}">Sports Booking</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'reservation_list' %}">Mis Reservas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'reservar' %}">Reservar</a></li>
+                        {% if user.is_superuser %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'registro' %}">Registro</a></li>
+                        {% endif %}
+                        <li class="nav-item logout-form">
+                            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </nav>
     </header>
-    <main>
+    <main class="container">
         {% block content %}
         {% endblock %}
     </main>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

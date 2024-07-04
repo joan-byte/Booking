@@ -2,41 +2,58 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
-from .forms import RegistroForm, ReservaForm, JugadorFormSet
+from django import forms
+from .forms import RegistroForm, ReservaForm, JugadorForm
 from .models import Pista, Reserva, Profile
 
-# Verificar si el usuario es superuser
-def superuser_required(view_func):
-    decorated_view_func = login_required(user_passes_test(lambda u: u.is_superuser)(view_func))
-    return decorated_view_func
-
 def index(request):
-    reservas = Reserva.objects.filter(fecha_hora_inicio__gte=timezone.now(), fecha_hora_inicio__lte=timezone.now() + timezone.timedelta(days=1))
-    return render(request, 'reservas/index.html', {'reservas': reservas})
+    now = timezone.now()
+    end_time = now + timezone.timedelta(days=1)
+    pistas = Pista.objects.all()
+    horas_del_dia = [now.replace(hour=h, minute=m, second=0, microsecond=0) for h in range(24) for m in (0, 15, 30, 45)]
+    reservas = Reserva.objects.filter(fecha_hora_inicio__gte=now, fecha_hora_inicio__lte=end_time)
+
+    # Organizar reservas por pista y por hora
+    reservas_por_pista = {pista.nombre: {hora: None for hora in horas_del_dia} for pista in pistas}
+    for reserva in reservas:
+        pista_nombre = reserva.pista.nombre
+        hora_inicio = reserva.fecha_hora_inicio.replace(second=0, microsecond=0, tzinfo=None)
+        reservas_por_pista[pista_nombre][hora_inicio] = reserva
+
+    return render(request, 'reservas/index.html', {
+        'reservas_por_pista': reservas_por_pista,
+        'horas_del_dia': horas_del_dia,
+        'now': now
+    })
 
 @login_required
 def reservar(request):
     if request.method == 'POST':
         form = ReservaForm(request.POST)
-        formset = JugadorFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
-            reserva = form.save(commit=False)
-            reserva.socio = request.user
-            jugadores = []
-            for jugador_form in formset:
-                if jugador_form.cleaned_data:
-                    jugador = {
-                        'nombre': jugador_form.cleaned_data.get('nombre'),
-                        'apellido': jugador_form.cleaned_data.get('apellido'),
-                        'tipo': jugador_form.cleaned_data.get('tipo'),
-                    }
-                    jugadores.append(jugador)
-            reserva.jugadores = jugadores
-            reserva.fecha_hora_fin = reserva.fecha_hora_inicio + timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15)
-            reserva.save()
-            return redirect('reservation_list')
+        if form.is_valid():
+            pista = form.cleaned_data.get('pista')
+            JugadorFormSet = forms.formset_factory(JugadorForm, extra=4 if pista.tipo == 'padel' else 4)
+            formset = JugadorFormSet(request.POST)
+            
+            if formset.is_valid():
+                reserva = form.save(commit=False)
+                reserva.socio = request.user
+                jugadores = []
+                for jugador_form in formset:
+                    if jugador_form.cleaned_data:
+                        jugador = {
+                            'nombre': jugador_form.cleaned_data.get('nombre'),
+                            'apellido': jugador_form.cleaned_data.get('apellido'),
+                            'tipo': jugador_form.cleaned_data.get('tipo'),
+                        }
+                        jugadores.append(jugador)
+                reserva.jugadores = jugadores
+                reserva.fecha_hora_fin = reserva.fecha_hora_inicio + timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15)
+                reserva.save()
+                return redirect('reservation_list')
     else:
         form = ReservaForm()
+        JugadorFormSet = forms.formset_factory(JugadorForm, extra=4)
         formset = JugadorFormSet()
     return render(request, 'reservas/reserve.html', {'form': form, 'formset': formset})
 
@@ -45,14 +62,13 @@ def reservation_list(request):
     reservas = Reserva.objects.filter(socio=request.user)
     return render(request, 'reservas/reservation_list.html', {'reservas': reservas})
 
-@superuser_required
+@user_passes_test(lambda u: u.is_superuser)
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.profile.telefono = form.cleaned_data.get('telefono')
-            user.profile.save()
+            profile = Profile.objects.create(user=user, telefono=form.cleaned_data.get('telefono'))
             grupo = form.cleaned_data.get('tipo')
             group = Group.objects.get(name=grupo)
             user.groups.add(group)

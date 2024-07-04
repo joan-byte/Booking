@@ -4,14 +4,39 @@
 
 {% block content %}
     <h2>Reservas Próximas</h2>
-    <ul>
-        {% for reserva in reservas %}
-            <li>{{ reserva.pista.nombre }} reservado por {{ reserva.socio.first_name }} {{ reserva.socio.last_name }} el {{ reserva.fecha_hora_inicio }}</li>
-            <ul>
-                {% for jugador in reserva.jugadores %}
-                    <li>{{ jugador.nombre }} {{ jugador.apellido }} - {{ jugador.tipo }}</li>
-                {% endfor %}
-            </ul>
+    <div class="row">
+        {% for pista, horas in reservas_por_pista.items %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        {{ pista }}
+                    </div>
+                    <div class="card-body">
+                        <table class="reservation-table">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Reserva</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hora, reserva in horas.items %}
+                                    <tr class="{% if reserva %}reserved{% endif %}">
+                                        <td>{{ hora|date:"H:i" }}</td>
+                                        <td>
+                                            {% if reserva %}
+                                                {{ reserva.socio.first_name }} {{ reserva.socio.last_name }} - {{ reserva.pista.tipo }}
+                                            {% else %}
+                                                Libre
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}
