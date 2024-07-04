@@ -1,0 +1,17 @@
+<!-- templates/reservas/index.html -->
+
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+    <h2>Reservas Próximas</h2>
+    <ul>
+        {% for reserva in reservas %}
+            <li>{{ reserva.pista.nombre }} reservado por {{ reserva.socio.first_name }} {{ reserva.socio.last_name }} el {{ reserva.fecha_hora_inicio }}</li>
+            <ul>
+                {% for jugador in reserva.jugadores %}
+                    <li>{{ jugador.nombre }} {{ jugador.apellido }} - {{ jugador.tipo }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+{% endblock %}

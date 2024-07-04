@@ -1,0 +1,20 @@
+<!-- templates/reservas/reserve.html -->
+
+{% extends 'reservas/base.html' %}
+
+{% block content %}
+    <h2>Reservar Pista</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div>
+                {{ form.nombre.label_tag }} {{ form.nombre }}
+                {{ form.apellido.label_tag }} {{ form.apellido }}
+                {{ form.tipo.label_tag }} {{ form.tipo }}
+            </div>
+        {% endfor %}
+        <button type="submit">Reservar</button>
+    </form>
+{% endblock %}
