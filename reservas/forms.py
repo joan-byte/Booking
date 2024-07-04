@@ -1,4 +1,4 @@
-# reservas/forms.py
+# /mnt/data/forms.py
 
 from django import forms
 from django.contrib.auth.models import User
@@ -11,10 +11,11 @@ class RegistroForm(forms.ModelForm):
         ('Socios Paseantes', 'Socios Paseantes'),
     )
     tipo = forms.ChoiceField(choices=TIPO_SOCIO)
+    telefono = forms.CharField(max_length=15)
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'tipo']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'tipo', 'telefono']
 
     def save(self, commit=True):
         user = super().save(commit=False)

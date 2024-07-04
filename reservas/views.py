@@ -1,11 +1,9 @@
-# reservas/views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from .forms import RegistroForm, ReservaForm, JugadorFormSet
-from .models import Pista, Reserva
+from .models import Pista, Reserva, Profile
 
 # Verificar si el usuario es superuser
 def superuser_required(view_func):
@@ -53,6 +51,8 @@ def registro(request):
         form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
+            user.profile.telefono = form.cleaned_data.get('telefono')
+            user.profile.save()
             grupo = form.cleaned_data.get('tipo')
             group = Group.objects.get(name=grupo)
             user.groups.add(group)

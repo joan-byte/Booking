@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {% load static %}
     <title>Sports Booking</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    {% load static %}
+   
 </head>
 <body>
     <header>
@@ -14,7 +14,14 @@
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'reservation_list' %}">Mis Reservas</a></li>
                     <li><a href="{% url 'reservar' %}">Reservar</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                    <li>
+                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer; color: #007bff; text-decoration: underline; font-size: 1em;">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
                 {% else %}
                     <li><a href="{% url 'login' %}">Login</a></li>
                 {% endif %}
