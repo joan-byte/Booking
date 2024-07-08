@@ -7,10 +7,10 @@
     <ul class="list-group">
         {% for reserva in reservas %}
             <li class="list-group-item">
-                {{ reserva.pista.nombre }} reservado por {{ reserva.socio.first_name }} {{ reserva.socio.last_name }} el {{ reserva.fecha_hora_inicio }}
-                <ul>
+                <strong>{{ reserva.pista.nombre }}</strong> reservado por <strong>{{ reserva.socio.first_name }} {{ reserva.socio.last_name }}</strong> el {{ reserva.fecha_hora_inicio }}
+                <ul class="list-unstyled mt-2">
                     {% for jugador in reserva.jugadores %}
-                        <li>{{ jugador.nombre }} {{ jugador.apellido }} - {{ jugador.tipo }}</li>
+                        <li>- {{ jugador.nombre }} {{ jugador.apellido }} - {{ jugador.tipo }}</li>
                     {% endfor %}
                 </ul>
             </li>

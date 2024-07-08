@@ -1,5 +1,3 @@
-<!-- templates/reservas/index.html -->
-
 {% extends 'reservas/base.html' %}
 
 {% block content %}
@@ -8,9 +6,7 @@
         {% for pista, horas in reservas_por_pista.items %}
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        {{ pista }}
-                    </div>
+                    <div class="card-header">{{ pista }}</div>
                     <div class="card-body">
                         <table class="reservation-table">
                             <thead>
@@ -21,15 +17,9 @@
                             </thead>
                             <tbody>
                                 {% for hora, reserva in horas.items %}
-                                    <tr class="{% if reserva %}reserved{% endif %}">
+                                    <tr>
                                         <td>{{ hora|date:"H:i" }}</td>
-                                        <td>
-                                            {% if reserva %}
-                                                {{ reserva.socio.first_name }} {{ reserva.socio.last_name }} - {{ reserva.pista.tipo }}
-                                            {% else %}
-                                                Libre
-                                            {% endif %}
-                                        </td>
+                                        <td>{% if reserva %}Reservado{% else %}Libre{% endif %}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
