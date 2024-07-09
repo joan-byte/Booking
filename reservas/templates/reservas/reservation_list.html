@@ -1,19 +1,29 @@
-<!-- templates/reservas/reservation_list.html -->
-
 {% extends 'reservas/base.html' %}
 
 {% block content %}
-    <h2>Todas las Reservas</h2>
-    <ul class="list-group">
-        {% for reserva in reservas %}
-            <li class="list-group-item">
-                <strong>{{ reserva.pista.nombre }}</strong> reservado por <strong>{{ reserva.socio.first_name }} {{ reserva.socio.last_name }}</strong> el {{ reserva.fecha_hora_inicio }}
-                <ul class="list-unstyled mt-2">
-                    {% for jugador in reserva.jugadores %}
-                        <li>- {{ jugador.nombre }} {{ jugador.apellido }} - {{ jugador.tipo }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
+    <h2>Mis Reservas</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pista</th>
+                <th>Fecha y Hora de Inicio</th>
+                <th>Fecha y Hora de Fin</th>
+                <th>Jugadores</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.pista.nombre }}</td>
+                    <td>{{ reserva.fecha_hora_inicio }}</td>
+                    <td>{{ reserva.fecha_hora_fin }}</td>
+                    <td>
+                        {% for jugador in reserva.jugadores %}
+                            {{ jugador.nombre }} {{ jugador.apellido }} ({{ jugador.tipo }})<br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

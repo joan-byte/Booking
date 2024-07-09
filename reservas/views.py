@@ -6,6 +6,7 @@ from django import forms
 from .forms import RegistroForm, ReservaForm, JugadorForm
 from .models import Pista, Reserva, Profile
 
+@login_required
 def index(request):
     now = timezone.now()
     end_time = now + timezone.timedelta(days=1)
@@ -13,7 +14,6 @@ def index(request):
     horas_del_dia = [now.replace(hour=h, minute=m, second=0, microsecond=0) for h in range(24) for m in (0, 15, 30, 45)]
     reservas = Reserva.objects.filter(fecha_hora_inicio__gte=now, fecha_hora_inicio__lte=end_time)
 
-    # Organizar reservas por pista y por hora
     reservas_por_pista = {pista.nombre: {hora: None for hora in horas_del_dia} for pista in pistas}
     for reserva in reservas:
         pista_nombre = reserva.pista.nombre
@@ -28,8 +28,11 @@ def index(request):
 
 @login_required
 def reservar(request):
+    JugadorFormSet = forms.formset_factory(JugadorForm, extra=4)  # Define JugadorFormSet por defecto
+
     if request.method == 'POST':
         form = ReservaForm(request.POST)
+        print("Request POST Data:", request.POST)  # Agregar depuración aquí
         if form.is_valid():
             pista = form.cleaned_data.get('pista')
             JugadorFormSet = forms.formset_factory(JugadorForm, extra=4 if pista.tipo == 'padel' else 4)
@@ -50,11 +53,21 @@ def reservar(request):
                 reserva.jugadores = jugadores
                 reserva.fecha_hora_fin = reserva.fecha_hora_inicio + timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15)
                 reserva.save()
+                print("Reserva guardada:", reserva)
                 return redirect('reservation_list')
+            else:
+                print("Formset no es válido:", formset.errors)
+        else:
+            print("Formulario no es válido:", form.errors)
+            formset = JugadorFormSet(request.POST)
     else:
         form = ReservaForm()
-        JugadorFormSet = forms.formset_factory(JugadorForm, extra=4)
         formset = JugadorFormSet()
+
+    # Agregar depuración para verificar tipos de datos
+    print("Tipo de fecha_hora_inicio:", type(request.POST.get('fecha_hora_inicio')))
+    print("Valor de fecha_hora_inicio:", request.POST.get('fecha_hora_inicio'))
+
     return render(request, 'reservas/reserve.html', {'form': form, 'formset': formset})
 
 @login_required
