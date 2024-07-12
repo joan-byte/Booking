@@ -47,7 +47,6 @@ class ReservaForm(forms.ModelForm):
         pista = cleaned_data.get('pista')
         total_jugadores = int(self.data.get('form-TOTAL_FORMS', 0))
 
-        # Contar solo los formularios que tienen datos válidos
         jugadores_validos = sum(
             1 for i in range(total_jugadores)
             if self.data.get(f'form-{i}-nombre') and self.data.get(f'form-{i}-apellido')

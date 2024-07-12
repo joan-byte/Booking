@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
+from django.db.models import Q
 from django import forms
 from .forms import RegistroForm, ReservaForm, JugadorForm
 from .models import Pista, Reserva, Profile
@@ -28,16 +29,15 @@ def index(request):
 
 @login_required
 def reservar(request):
-    JugadorFormSet = forms.formset_factory(JugadorForm, extra=4)  # Define JugadorFormSet por defecto
+    JugadorFormSet = forms.formset_factory(JugadorForm, extra=4)
 
     if request.method == 'POST':
         form = ReservaForm(request.POST)
-        print("Request POST Data:", request.POST)  # Agregar depuración aquí
         if form.is_valid():
             pista = form.cleaned_data.get('pista')
             JugadorFormSet = forms.formset_factory(JugadorForm, extra=4 if pista.tipo == 'padel' else 4)
             formset = JugadorFormSet(request.POST)
-            
+
             if formset.is_valid():
                 reserva = form.save(commit=False)
                 reserva.socio = request.user
@@ -51,7 +51,10 @@ def reservar(request):
                         }
                         jugadores.append(jugador)
                 reserva.jugadores = jugadores
-                reserva.fecha_hora_fin = reserva.fecha_hora_inicio + timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15)
+
+                print("Fecha y hora de inicio (datetime):", reserva.fecha_hora_inicio)
+
+                reserva.fecha_hora_fin = reserva.fecha_hora_inicio + (timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15))
                 reserva.save()
                 print("Reserva guardada:", reserva)
                 return redirect('reservation_list')
@@ -64,7 +67,6 @@ def reservar(request):
         form = ReservaForm()
         formset = JugadorFormSet()
 
-    # Agregar depuración para verificar tipos de datos
     print("Tipo de fecha_hora_inicio:", type(request.POST.get('fecha_hora_inicio')))
     print("Valor de fecha_hora_inicio:", request.POST.get('fecha_hora_inicio'))
 
@@ -72,7 +74,9 @@ def reservar(request):
 
 @login_required
 def reservation_list(request):
-    reservas = Reserva.objects.filter(socio=request.user)
+    usuario = request.user
+    reservas = Reserva.objects.filter(Q(socio=usuario) | Q(jugadores__icontains=usuario.first_name))
+
     return render(request, 'reservas/reservation_list.html', {'reservas': reservas})
 
 @user_passes_test(lambda u: u.is_superuser)
