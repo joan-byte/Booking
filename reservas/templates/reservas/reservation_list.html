@@ -1,29 +1,28 @@
-{% extends 'reservas/base.html' %}
-
+{% extends "reservas/base.html" %}
 {% block content %}
-    <h2>Mis Reservas</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Pista</th>
-                <th>Fecha y Hora de Inicio</th>
-                <th>Fecha y Hora de Fin</th>
-                <th>Jugadores</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="container">
+    <h1 class="text-center my-4">Mis Reservas</h1>
+    <div class="reservation-columns">
+        {% for pista, reservas in reservas_por_pista.items %}
+        <div class="reservation-column">
+            <div class="pista-header">{{ pista }}</div>
+            {% if reservas %}
             {% for reserva in reservas %}
-                <tr>
-                    <td>{{ reserva.pista.nombre }}</td>
-                    <td>{{ reserva.fecha_hora_inicio }}</td>
-                    <td>{{ reserva.fecha_hora_fin }}</td>
-                    <td>
-                        {% for jugador in reserva.jugadores %}
-                            {{ jugador.nombre }} {{ jugador.apellido }} ({{ jugador.tipo }})<br>
-                        {% endfor %}
-                    </td>
-                </tr>
+            <div class="reservation-list-card">
+                <div class="reservation-date">{{ reserva.fecha_hora_inicio|date:"F j, Y" }}</div>
+                <div class="reservation-time">{{ reserva.fecha_hora_inicio|date:"H:i" }} - {{ reserva.fecha_hora_fin|date:"H:i" }}</div>
+                <div class="player-info">
+                    {% for jugador in reserva.jugadores %}
+                    <div>{{ jugador.nombre }} {{ jugador.apellido }} ({{ jugador.tipo }})</div>
+                    {% endfor %}
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+            {% else %}
+            <p>No hay reservas para esta pista.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

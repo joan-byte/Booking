@@ -41,3 +41,150 @@
 .reserved {
     background-color: #ffc107;
 }
+
+/* Estilos para las tarjetas de reserva */
+.reservation-card {
+    background-color: #e3f2fd;
+    border: 1px solid #007bff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.reservation-card .card-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 10px;
+    font-size: 18px;
+}
+.reservation-card .card-body {
+    padding: 20px;
+}
+.reservation-card .form-row {
+    margin-bottom: 15px;
+}
+.reservation-card label {
+    font-weight: bold;
+}
+.reservation-card input, .reservation-card select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.reservation-card button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.reservation-card button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para los encabezados de las pistas */
+.pista-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Estilos para las tarjetas en "mis reservas" */
+.reservation-list-card {
+    background-color: #e3f2fd;
+    border: 1px solid #007bff;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    max-width: 300px;
+    min-height: 180px; /* Tamaño mínimo para uniformidad */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centramos verticalmente */
+    margin-left: auto;
+    margin-right: auto;
+}
+.reservation-list-card .card-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 10px;
+    font-size: 18px;
+}
+.reservation-list-card .card-body {
+    padding: 20px;
+}
+.reservation-list-card .form-row {
+    margin-bottom: 15px;
+}
+.reservation-list-card label {
+    font-weight: bold;
+}
+.reservation-list-card input, .reservation-list-card select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.reservation-list-card .player-info {
+    margin-bottom: 10px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Estilos para la disposición de las columnas */
+.reservation-columns {
+    display: flex;
+    justify-content: space-between;
+}
+.reservation-column {
+    flex: 1;
+    margin: 0 10px;
+    text-align: center;
+}
+
+/* Estilos para la fecha y hora en las tarjetas de reservas */
+.reservation-list-card .reservation-date {
+    font-weight: bold;
+    font-size: 18px;
+    color: #007bff;
+    text-align: center;
+}
+.reservation-list-card .reservation-time {
+    font-size: 18px;
+    color: #007bff;
+    text-align: center;
+}
+
+/* Ajuste del interlineado para las tarjetas de reservas */
+.reservation-list-card .player-info {
+    margin-bottom: 10px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Tamaño de la tarjeta de reserva */
+.reservation-list-card.small {
+    max-width: 280px;
+    min-height: 180px;
+}
+
+/* Centrado de las tarjetas en cada columna */
+.reservation-column .reservation-list-card {
+    margin-left: auto;
+    margin-right: auto;
+}

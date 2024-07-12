@@ -6,6 +6,7 @@ from django.db.models import Q
 from django import forms
 from .forms import RegistroForm, ReservaForm, JugadorForm
 from .models import Pista, Reserva, Profile
+import json
 
 @login_required
 def index(request):
@@ -35,7 +36,7 @@ def reservar(request):
         form = ReservaForm(request.POST)
         if form.is_valid():
             pista = form.cleaned_data.get('pista')
-            JugadorFormSet = forms.formset_factory(JugadorForm, extra=4 if pista.tipo == 'padel' else 4)
+            JugadorFormSet = forms.formset_factory(JugadorForm, extra=4 if pista.tipo == 'padel' else 2)
             formset = JugadorFormSet(request.POST)
 
             if formset.is_valid():
@@ -52,32 +53,32 @@ def reservar(request):
                         jugadores.append(jugador)
                 reserva.jugadores = jugadores
 
-                print("Fecha y hora de inicio (datetime):", reserva.fecha_hora_inicio)
-
                 reserva.fecha_hora_fin = reserva.fecha_hora_inicio + (timezone.timedelta(hours=1) if reserva.pista.tipo == 'tenis' else timezone.timedelta(hours=1, minutes=15))
                 reserva.save()
-                print("Reserva guardada:", reserva)
                 return redirect('reservation_list')
-            else:
-                print("Formset no es válido:", formset.errors)
-        else:
-            print("Formulario no es válido:", form.errors)
-            formset = JugadorFormSet(request.POST)
+        formset = JugadorFormSet(request.POST)
     else:
         form = ReservaForm()
         formset = JugadorFormSet()
-
-    print("Tipo de fecha_hora_inicio:", type(request.POST.get('fecha_hora_inicio')))
-    print("Valor de fecha_hora_inicio:", request.POST.get('fecha_hora_inicio'))
 
     return render(request, 'reservas/reserve.html', {'form': form, 'formset': formset})
 
 @login_required
 def reservation_list(request):
     usuario = request.user
-    reservas = Reserva.objects.filter(Q(socio=usuario) | Q(jugadores__icontains=usuario.first_name))
+    usuario_json = json.dumps({"nombre": usuario.first_name, "apellido": usuario.last_name})
+    reservas = Reserva.objects.filter(
+        Q(socio=usuario) | 
+        Q(jugadores__icontains=usuario_json)
+    ).filter(fecha_hora_inicio__gte=timezone.now(), fecha_hora_inicio__lte=timezone.now() + timezone.timedelta(days=1))
 
-    return render(request, 'reservas/reservation_list.html', {'reservas': reservas})
+    pistas = Pista.objects.all()
+    reservas_por_pista = {pista: [] for pista in pistas}
+    
+    for reserva in reservas:
+        reservas_por_pista[reserva.pista].append(reserva)
+
+    return render(request, 'reservas/reservation_list.html', {'reservas_por_pista': reservas_por_pista})
 
 @user_passes_test(lambda u: u.is_superuser)
 def registro(request):
